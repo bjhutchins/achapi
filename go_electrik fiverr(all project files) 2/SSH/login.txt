@@ -1,1 +1,0 @@
-ubuntu@ec2-16-170-255-45.eu-north-1.compute.amazonaws.com
