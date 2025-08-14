@@ -4,6 +4,16 @@ import traceback
 import pymysql.cursors
 import base64
 import requests
+import logging
+import os
+
+# Setup logging
+LOG_FILE = os.path.join(os.path.dirname(__file__), "queue_manager.log")
+logging.basicConfig(
+    filename=LOG_FILE,
+    level=logging.DEBUG,
+    format="%(asctime)s [%(levelname)s] %(message)s"
+)
 
 db_host = 'localhost'
 db_name = 'service_api'
@@ -14,8 +24,7 @@ enc_token = base64.b64encode(f"{token}:".encode()).decode('utf-8')
 
 
 def getCompanyOfficers(company_number):
-    link = f"https://api.company-information.service.gov.uk/company/{
-        company_number}/officers"
+    link = f"https://api.company-information.service.gov.uk/company/{company_number}/officers"
     params = {
         'items_per_page': '5000'
     }
@@ -122,7 +131,12 @@ def monitorQueue():
         except:
             continue
         print("Processing record {}".format(record_id))
-        final_data = getSearchResults(params_final)
+        logging.debug("Processing record {}".format(record_id))
+
+        print("DEBUG getSearchResults returned:", getSearchResults(params_final))
+        logging.debug("DEBUG getSearchResults returned: %s", getSearchResults(params_final))
+
+        final_data = getSearchResults(params_final) or []
         connection = pymysql.connect(host=db_host,
                                      user=db_user,
                                      password=db_pass,
@@ -158,11 +172,12 @@ def monitorQueue():
 
 
 if __name__ == "__main__":
+    logging.info("Monitoring queue has started")
     print("Monitoring queue has started")
     while True:
         try:
             monitorQueue()
-        except:
+        except Exception as e:
+            logging.exception("Error in monitorQueue: %s", e)
             traceback.print_exc()
         sleep(1)
-
