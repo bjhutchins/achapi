@@ -1,5 +1,8 @@
+import os
+import stripe
+import secrets
 from datetime import datetime
-from flask import Flask, render_template, redirect, request, jsonify, send_file
+from flask import Flask, render_template, redirect, request, jsonify, send_file, abort
 import json
 import pandas as pd
 import pymysql.cursors
@@ -11,6 +14,24 @@ import openpyxl
 from re import escape
 import base64
 
+sk_test_51Rw1sFLWElu6vggs2AmRnfb9IhvsRmgtukhKINZSUofzJdSvFoDKzou3iWeD61NtnwGl5BxmOq0OMfCV2hUALfWW00eJzWqQe8 = "sk_test_XXXXXXXXXXXXXXXXXXXXXXXX"
+pk_test_51Rw1sFLWElu6vggsrxxRHqRjTCSh2WxwcEtL1y8ngyE5kgIvBLDEg1lxQBQhdKa0ofjkilNmMUBMKfg81DaNxy6N00ZEpyKMtX = "pk_test_XXXXXXXXXXXXXXXXXXXXXXXX"
+OWNER_EMAIL = “ben”.hutchins@hotmail.com  # Free access for you
+
+# Pricing tiers (in GBP)
+def get_price_per_row(count):
+    if count <= 100:
+        return 0.10
+    elif count <= 500:
+        return 0.07
+    else:
+        return 0.05
+
+
+stripe.api_key = sk_test_51Rw1sFLWElu6vggs2AmRnfb9IhvsRmgtukhKINZSUofzJdSvFoDKzou3iWeD61NtnwGl5BxmOq0OMfCV2hUALfWW00eJzWqQe8
+
+# Store tokens in memory (or use DB in production)
+issued_tokens = {}
 
 app = Flask(__name__)
 app.secret_key = 'super secret key'
@@ -232,3 +253,4 @@ def addToQueue(params):
 
 if __name__ == "__main__":
     app.run(debug=True, port=4000)
+
