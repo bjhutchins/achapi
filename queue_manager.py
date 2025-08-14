@@ -7,8 +7,8 @@ import requests
 
 db_host = 'localhost'
 db_name = 'service_api'
-db_user = 'root'
-db_pass = ''
+db_user = 'achapi'
+db_pass = 'GoElectrik'
 token = "9504e4fc-4c9d-4953-95a3-444ded8f2483"
 enc_token = base64.b64encode(f"{token}:".encode()).decode('utf-8')
 
@@ -165,3 +165,4 @@ if __name__ == "__main__":
         except:
             traceback.print_exc()
         sleep(1)
+
